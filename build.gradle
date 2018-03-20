@@ -1,0 +1,72 @@
+plugins {
+    // Apply the application plugin to add support for building an application
+    id "application"
+
+    // create stand-alone, production-grade Spring based Applications
+    id "org.springframework.boot" version "2.0.0.RELEASE"
+
+    // provides Maven-like dependency management and exclusions
+    id "io.spring.dependency-management" version "1.0.4.RELEASE"
+
+    // orchestrating docker builds and pushes
+    id "com.palantir.docker" version "0.19.2"
+}
+
+//  generates files that are used by IntelliJ IDEA
+apply plugin: "idea"
+
+dependencyManagement {
+    imports {
+        // needed by Spring Cloud Netflix Zuul Edge Server
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.M8"
+    }
+}
+
+dependencies {
+    // include Spring Cloud Netflix Zuul Edge Server
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-zuul"
+
+    // generate swagger specification
+    implementation "io.springfox:springfox-swagger2:2.8.0"
+
+    // generate swagger ui
+    implementation "io.springfox:springfox-swagger-ui:2.8.0"
+
+    // needed by Swagger
+    implementation "javax.xml.bind:jaxb-api:2.3.0"
+
+    // connect to the Netflix Eureka Discovery Server
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+
+    // Use test frameworks
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+}
+
+repositories {
+    jcenter()
+    maven {
+        // needed by Spring Cloud Config Server
+        url "https://repo.spring.io/libs-milestone"
+    }
+}
+
+version = "0.1.0"
+
+sourceCompatibility = 9
+targetCompatibility = 9
+
+// Define the main class for the application
+mainClassName = "com.jad.edge.server.EdgeServerApplication"
+
+jar {
+    manifest {
+        attributes("Implementation-Title": project.name,
+                "Implementation-Version": project.version)
+    }
+}
+
+docker {
+    name "zoubair/${project.name}:${project.version}"
+    files jar.archivePath
+    buildArgs(["JAR_FILE": "${jar.archiveName}"])
+}

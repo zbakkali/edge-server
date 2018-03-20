@@ -1,0 +1,9 @@
+server.port: 8080
+spring:
+  application.name: edge-server
+eureka:
+  instance:
+      instanceId:
+      statusPageUrlPath: /actuator/info
+      healthCheckUrlPath: /actuator/health
+
